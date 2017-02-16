@@ -70,3 +70,11 @@ def bootstrap_python():
 
     with prefix('source %(python_path)s/bin/activate' % env):
         sudo('pip install -U psycopg2')
+
+@task
+def install_trac(version):
+    """Install/upgrade Trac on the application-specific python environment"""
+    require('environment', provided_by=[staging, production])
+
+    with prefix('source %(python_path)s/bin/activate' % env):
+        sudo('pip install -U Trac==' + version)
