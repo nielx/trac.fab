@@ -18,12 +18,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
-
+import time
 from fabric.api import env
-from fabric.context_managers import prefix
+from fabric.context_managers import prefix, cd
 from fabric.contrib.files import exists
 from fabric.decorators import task
-from fabric.operations import require, sudo
+from fabric.operations import require, sudo, run
 
 #
 # Settings
@@ -78,3 +78,15 @@ def install_trac(version):
 
     with prefix('source %(python_path)s/bin/activate' % env):
         sudo('pip install -U Trac==' + version)
+
+@task
+def backup():
+    """Make a backup of the project dir and the database in the home dir"""
+    require('environment', provided_by=[staging, production])
+
+    env.timestring = time.strftime("%Y%m%d-%H%M%S", time.gmtime())
+    with prefix('source %(python_path)s/bin/activate' % env):
+        sudo('trac-admin %(project_path)s hotcopy ~/%(timestring)s' % env)
+        with cd("~"):
+            sudo('tar -cvjf %(apache_server_name)s-backup-%(timestring)s.tar.bz2 %(timestring)s' % env)
+            sudo('rm -rf %(timestring)s' % env)
