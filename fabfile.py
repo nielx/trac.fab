@@ -156,3 +156,18 @@ def enable_environment():
                     context=env, use_sudo=True)
 
     sudo('/sbin/service apache2 reload')
+
+
+@task
+def disable_environment(destination_domain):
+    """Disable an environment and redirect to a URL"""
+    require('environment', provided_by=[staging, production])
+
+    env.destination_domain = destination_domain
+
+    # Update the configuration files
+    upload_template('virtualhost-disabled.conf',
+                    '/etc/apache2/vhosts.d/%(apache_server_name)-ssl.conf' % env,
+                    context=env, use_sudo=True)
+
+    sudo('/sbin/service apache2 reload')
