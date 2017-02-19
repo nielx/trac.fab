@@ -72,16 +72,18 @@ def bootstrap_python():
     # Set up python virtual env
     sudo('virtualenv -p %(python)s --no-site-packages %(python_path)s' % env)
 
-    with prefix('source %(python_path)s/bin/activate' % env):
-        sudo('pip install -U psycopg2')
-
 @task
 def install_trac(version):
     """Install/upgrade Trac on the application-specific python environment"""
     require('environment', provided_by=[staging, production])
 
     with prefix('source %(python_path)s/bin/activate' % env):
+        sudo('pip install -U psycopg2')
         sudo('pip install -U Trac==' + version)
+        sudo('pip install pytz')
+        sudo('pip install Pygments')
+        sudo('pip install docutils>=0.3.9')
+        sudo('pip install Babel==0.9.6')
 
 @task
 def backup():
@@ -135,3 +137,22 @@ def copy_production_to_environment():
     # change the database in trac.ini
     with cd("%(project_path)s/conf" % env):
         sudo("sed - i 's/\(^database.*\/\)\(trac\)/\1%(database)/g' trac.ini" % env)
+
+    # set up proper permissions
+    with cd(env.project_path):
+        sudo("chown -R wwwrun:www conf")
+        sudo("chown -R wwwrun:www db")
+        sudo("chown -R wwwrun:www log")
+
+
+@task
+def enable_environment():
+    """Enable an environment"""
+    require('environment', provided_by=[staging, production])
+
+    # Update the configuration files
+    upload_template('virtualhost.conf',
+                    '/etc/apache2/vhosts.d/%(apache_server_name)-ssl.conf' % env,
+                    context=env, use_sudo=True)
+
+    sudo('/sbin/service apache2 reload')
