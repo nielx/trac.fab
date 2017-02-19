@@ -161,7 +161,7 @@ def enable_environment():
 
     # Update the configuration files
     upload_template('virtualhost.conf',
-                    '/etc/apache2/vhosts.d/%(apache_server_name)-ssl.conf' % env,
+                    '/etc/apache2/vhosts.d/%(apache_server_name)s-ssl.conf' % env,
                     context=env, use_sudo=True)
 
     sudo('/sbin/service apache2 reload')
