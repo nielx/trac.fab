@@ -86,6 +86,15 @@ def install_trac(version):
         sudo('pip install Babel==0.9.6')
 
 @task
+def deploy():
+    with prefix('source %(python_path)s/bin/activate' % env):
+        sudo('trac-admin %(project_path)s upgrade' % env)
+        sudo('trac-admin %(project_path)s wiki upgrade' % env)
+        sudo('trac-admin %(project_path)s deploy %(project_path)s/htdocs-static' % env)
+
+    sudo('/sbin/service apache2 reload')
+
+@task
 def backup():
     """Make a backup of the project dir and the database in the home dir"""
     require('environment', provided_by=[staging, production])
