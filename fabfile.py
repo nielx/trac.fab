@@ -77,6 +77,12 @@ def install_trac(version):
     """Install/upgrade Trac on the application-specific python environment"""
     require('environment', provided_by=[staging, production])
 
+    from distutils.version import StrictVersion
+    requested_version = StrictVersion(version)
+    if requested_version > StrictVersion("1.0.13") or requested_version < StrictVersion("1.0.1"):
+        print(red("This script has not been designed for this version number"))
+        return
+
     with prefix('source %(python_path)s/bin/activate' % env):
         sudo('pip install -U psycopg2')
         sudo('pip install -U Trac==' + version)
