@@ -25,7 +25,7 @@ from fabric.context_managers import prefix, cd
 from fabric.contrib.console import confirm
 from fabric.contrib.files import exists, upload_template
 from fabric.decorators import task
-from fabric.operations import require, sudo, run
+from fabric.operations import require, sudo, run, put
 
 #
 # Settings
@@ -77,19 +77,14 @@ def install_trac(version):
     """Install/upgrade Trac on the application-specific python environment"""
     require('environment', provided_by=[staging, production])
 
-    from distutils.version import StrictVersion
-    requested_version = StrictVersion(version)
-    if requested_version > StrictVersion("1.0.13") or requested_version < StrictVersion("1.0.1"):
-        print(red("This script has not been designed for this version number"))
+    try:
+        put('requirements/' + version, "/tmp/requirements.txt")
+    except:
+        print(red("There is no support for this version of Trac. Please provide a requirements file"))
         return
 
     with prefix('source %(python_path)s/bin/activate' % env):
-        sudo('pip install -U psycopg2')
-        sudo('pip install -U Trac==' + version)
-        sudo('pip install pytz')
-        sudo('pip install Pygments')
-        sudo('pip install docutils>=0.3.9')
-        sudo('pip install Babel==0.9.6')
+        sudo('pip install -r /tmp/requirements.txt')
 
 @task
 def deploy():

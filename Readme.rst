@@ -4,9 +4,11 @@ Automation for deployment of Trac on vmdev.haiku-os.org
 This repository contains the management tools to install and maintain Haiku's
 Trac installation.
 
-The current scripts are written for the 1.0.x branch. They have been tested
-with 1.0.1 and 1.0.13, and should theoretically work with versions in
-between. But why would anybody want that?
+The current scripts are written for the 1.0.x branch. It has been tested
+with 1.0.13. But why would anybody want that?
+
+See the available files in the requirements directory for the supported
+versions.
 
 Bootstrapping a new installation
 --------------------------------
