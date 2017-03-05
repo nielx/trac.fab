@@ -88,10 +88,13 @@ def install_trac(version):
 
 @task
 def deploy():
+    require('environment', provided_by=[staging, production])
     with prefix('source %(python_path)s/bin/activate' % env):
         sudo('trac-admin %(project_path)s upgrade' % env)
         sudo('trac-admin %(project_path)s wiki upgrade' % env)
+        sudo('rm -rf %(project_path)s/htdocs-static' % env)
         sudo('trac-admin %(project_path)s deploy %(project_path)s/htdocs-static' % env)
+        sudo('mv %(project_path)s/htdocs-static/htdocs/* %(project_path)s/htdocs-static' % env)
 
     sudo('/sbin/service apache2 reload')
 
