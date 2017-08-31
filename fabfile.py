@@ -149,7 +149,8 @@ def copy_production_to_environment():
 
     # change the database in trac.ini
     with cd("%(project_path)s/conf" % env):
-        sudo("sed - i 's/\(^database.*\/\)\(trac\)/\1%(database)/g' trac.ini" % env)
+        sudo("sed -i 's/\(^database.*\/\)\(trac\)/\1%(database)/g' trac.ini" % env)
+        sudo("sed -i '/smtp_enabled/s/true/false/g' trac.ini")
 
     # set up proper permissions
     with cd(env.project_path):
