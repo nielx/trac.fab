@@ -126,7 +126,7 @@ def copy_production_to_environment():
         print("You will need it for the trac and the baron account")
         return
 
-    confirm("This will destroy all data of the $(environment)s environment. Do you want to continue?" % env,
+    confirm("This will destroy all data of the %(environment)s environment. Do you want to continue?" % env,
             default=False)
 
     # set up env for staging
@@ -139,7 +139,7 @@ def copy_production_to_environment():
         sudo('trac-admin /srv/trac/dev.haiku-os.org/ hotcopy %(project_path)s' % env)
 
     # we do not use the dump that is created by trac hotcopy, since it tries to restore in the original database
-    run("createdb -U baron -O trac %(database)s" % env)
+    run("createdb -U postgres -O trac %(database)s" % env)
     run("pg_dump -U trac trac | psql -U trac %(database)s" % env)
 
     # update the wsgi file
@@ -149,7 +149,7 @@ def copy_production_to_environment():
 
     # change the database in trac.ini
     with cd("%(project_path)s/conf" % env):
-        sudo("sed -i 's/\(^database.*\/\)\(trac\)/\1%(database)/g' trac.ini" % env)
+        sudo("sed -i 's/\(^database.*\/\)\(trac\)/\1%(database)s/g' trac.ini" % env)
         sudo("sed -i '/smtp_enabled/s/true/false/g' trac.ini")
 
     # set up proper permissions
@@ -181,7 +181,7 @@ def disable_environment(destination_domain):
 
     # Update the configuration files
     upload_template('virtualhost-disabled.conf',
-                    '/etc/apache2/vhosts.d/%(apache_server_name)-ssl.conf' % env,
+                    '/etc/apache2/vhosts.d/%(apache_server_name)s.conf' % env,
                     context=env, use_sudo=True)
 
     sudo('/sbin/service apache2 reload')
