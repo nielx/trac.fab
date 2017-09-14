@@ -154,8 +154,10 @@ def copy_production_to_environment():
 
     # set up proper permissions
     with cd(env.project_path):
+        sudo("chown -R wwwrun:www .egg-cache")
         sudo("chown -R wwwrun:www conf")
         sudo("chown -R wwwrun:www db")
+        sudo("chown -R wwwrun:www files")
         sudo("chown -R wwwrun:www log")
 
 
